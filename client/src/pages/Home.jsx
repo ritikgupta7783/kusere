@@ -9,6 +9,15 @@ import { imageUrl, BRAND } from '../utils/images';
 import { formatPrice } from '../utils/format';
 import { Badge } from '../components/ui';
 
+// Default "How to use" steps (from the supplied BMH.pdf). Used only when the product
+// record has no usage steps, e.g. while the backend is not connected.
+const DEFAULT_USAGE = [
+  'Apply a small pea-sized amount onto a soft-bristled toothbrush.',
+  'Brush thoroughly for 2 minutes, preferably three times a day after meals.',
+  'Adult supervision is recommended during brushing to minimize accidental swallowing.',
+  'Spit out and rinse the mouth thoroughly with clean water.',
+];
+
 const trust = [
   { icon: Droplets, title: 'SLS-free', text: 'No harsh foaming agent' },
   { icon: ShieldCheck, title: 'Fluoride-free', text: 'As stated on the pack' },
@@ -29,6 +38,7 @@ export default function Home() {
 
   const available = product && product.isActive && product.inStock;
   const maxPct = product ? Math.max(...product.ingredients.map((i) => i.percentage)) : 50;
+  const usageSteps = product?.usage?.length ? product.usage : DEFAULT_USAGE;
 
   return (
     <>
@@ -150,7 +160,7 @@ export default function Home() {
             <p className="eyebrow">How to use</p>
             <h2 className="mt-2 text-3xl font-semibold sm:text-4xl">Four simple steps</h2>
             <ol className="mt-8 space-y-5">
-              {(product?.usage || []).map((step, i) => (
+              {usageSteps.map((step, i) => (
                 <li key={step} className="flex gap-4">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest text-sm font-bold text-white">{i + 1}</span>
                   <p className="pt-1 text-ink-500">{step}</p>
