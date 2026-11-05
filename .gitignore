@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.local/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+# Local development data
+.local/
+
+# Dependencies
+node_modules/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
