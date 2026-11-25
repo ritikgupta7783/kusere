@@ -244,3 +244,5 @@ Admin product forms now provide both the bundled image library and a **Upload to
 
 Your five originals are kept in `original-assets/`. Web-optimised copies (logo cropped; others resized/compressed) are in `client/public/assets/`:
 `brand-logo.png`, `cavi-care-front.jpg`, `cavi-care-back.jpg`, `product-advertisement.jpg`, `promo-usage-collage.jpg`.
+#   k u s e r e  
+ 
