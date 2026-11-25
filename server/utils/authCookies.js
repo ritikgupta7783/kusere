@@ -9,7 +9,11 @@ const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 const signToken = (user) =>
   jwt.sign({ sub: String(user._id), tv: user.tokenVersion || 0 }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
 
-const baseCookie = () => ({ sameSite: 'lax', secure: config.isProd, path: '/' });
+const baseCookie = () => ({
+  sameSite: config.isProd ? 'none' : 'lax',
+  secure: config.isProd,
+  path: '/',
+});
 
 const setAuthCookie = (res, user) =>
   res.cookie(AUTH_COOKIE, signToken(user), { ...baseCookie(), httpOnly: true, maxAge: SEVEN_DAYS });
