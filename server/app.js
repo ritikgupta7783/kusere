@@ -24,7 +24,7 @@ function createApp() {
           'script-src': ["'self'", 'https://checkout.razorpay.com'],
           'frame-src': ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'],
           'connect-src': ["'self'", 'https://lumberjack.razorpay.com', 'https://api.razorpay.com'],
-          'img-src': ["'self'", 'data:'],
+          'img-src': ["'self'", 'data:', 'https://res.cloudinary.com'],
           'upgrade-insecure-requests': config.isProd ? [] : null,
         },
       },

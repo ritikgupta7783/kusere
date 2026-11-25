@@ -1,10 +1,5 @@
 /**
- * Catalogue of local images the admin may pick from.
- *
- * PHASE 2 (cloud storage): replace this list with a lookup against your storage
- * provider (e.g. Cloudinary) and relax `isAllowedImage` to accept the provider's
- * URLs. Product.image / WebsiteContent image fields already store a plain string,
- * so no model change is needed. See README "Upgrading to Cloudinary".
+ * Catalogue of bundled images plus validated Cloudinary-hosted URLs.
  */
 const IMAGE_CATALOG = [
   { path: '/assets/cavi-care-front.jpg', label: 'Cavi-Care tube - front (photo)', kind: 'product' },
@@ -16,6 +11,15 @@ const IMAGE_CATALOG = [
 
 const allowed = new Set(IMAGE_CATALOG.map((i) => i.path));
 
-const isAllowedImage = (p) => typeof p === 'string' && allowed.has(p);
+const isAllowedImage = (p) => {
+  if (typeof p !== 'string') return false;
+  if (allowed.has(p)) return true;
+  try {
+    const url = new URL(p);
+    return url.protocol === 'https:' && /^res\.cloudinary\.com$/i.test(url.hostname);
+  } catch {
+    return false;
+  }
+};
 
 module.exports = { IMAGE_CATALOG, isAllowedImage };

@@ -23,7 +23,7 @@ Please do the "first run checklist" in section 9 and tell me about any failure.
 
 ## 1. Features
 
-**Customers:** home, shop, product details (gallery, ingredients %, benefits, usage), cart (saved in browser), checkout, Razorpay or COD, order confirmation, order history, order tracking timeline, profile, change password, saved addresses, email-OTP registration, forgot/reset password, contact form.
+**Customers:** home, shop, product details (gallery, ingredients %, benefits, usage), cart (stored per account in MongoDB; guest cart remains local and clears on sign-out), checkout, Razorpay or COD, order confirmation, order history, order tracking timeline, profile, change password, saved addresses, email-OTP registration, forgot/reset password, contact form.
 
 **Owner/admin:** dashboard (orders, products, customers, pending, delivered, **paid online revenue** and **COD collected shown separately**), product editor (name, descriptions, prices, MRP, ingredients, specs, activate/deactivate, **pick image from local library**), order management (search, filter, status workflow, cancel, mark COD collected, Razorpay refund), customer management (search, view, deactivate), website content editor (live, no redeploy), contact enquiries, store settings (name, phone, email, address, delivery charge, free-delivery threshold, COD on/off).
 
@@ -202,6 +202,7 @@ All state-changing requests need the `X-CSRF-Token` header (the web app does thi
 | POST `/api/auth/resend-otp` | public | new OTP (60 s cooldown) |
 | POST `/api/auth/login` / `logout` | public | sign in/out (cookie) |
 | GET `/api/auth/me` | user | validate session |
+| GET/PUT `/api/cart` | user | retrieve or save the signed-in user's cart |
 | POST `/api/auth/forgot-password` / `reset-password` | public | email reset flow |
 | PUT `/api/account/profile`, `/password` | user | edit profile, change password |
 | GET/POST/PUT/DELETE `/api/account/addresses[/:id]` | user | saved addresses |
@@ -217,14 +218,14 @@ All state-changing requests need the `X-CSRF-Token` header (the web app does thi
 | PATCH `/api/admin/orders/:id/status`, `/cod-collected`; POST `/refund` | admin | order actions |
 | PATCH `/api/admin/customers/:id/active`, `/contact/:id/resolve` | admin | deactivate, resolve |
 
-## 12. Upgrading to Cloudinary (phase 2)
+## 12. Cloudinary image uploads
 
-Images are plain strings (`Product.image`, `gallery`, `WebsiteContent.heroImage/promoImage`), currently like `/assets/cavi-care-front.jpg`.
-1. Add an upload endpoint (multer + Cloudinary SDK) that stores the returned `secure_url` in those fields.
-2. In `server/config/imageCatalog.js` replace the static list with the uploaded-assets list and let `isAllowedImage` accept your Cloudinary domain.
-3. `client/src/utils/images.js` (`imageUrl`) already returns `https://` URLs unchanged - no component changes.
-4. Replace the picker in `client/src/components/ImagePicker.jsx` with an upload + choose UI.
-5. Add `https://res.cloudinary.com` to `img-src` in the Helmet CSP in `server/app.js`.
+Admin product forms now provide both the bundled image library and a **Upload to Cloudinary** control. Uploads are sent through the authenticated admin API and stored as secure Cloudinary HTTPS URLs in MongoDB.
+
+1. Create a Cloudinary account and obtain Cloud Name, API Key and API Secret.
+2. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in `server/.env`.
+3. Restart the Express server.
+4. Open Admin > Products, choose **Add product** or edit an existing product, and upload JPEG, PNG, WebP or GIF images.
 
 ## 13. Troubleshooting
 

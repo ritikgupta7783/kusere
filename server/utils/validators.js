@@ -54,6 +54,20 @@ const schemas = {
     paymentMethod: z.enum(['RAZORPAY', 'COD']),
     idempotencyKey: z.string().min(8).max(80).optional(),
   }),
+  cart: z.object({
+    items: z.array(z.object({
+      productId: objectId.transform((id) => id.toLowerCase()),
+      quantity: z.number().int().min(1).max(20),
+    })).max(20),
+  }).superRefine(({ items }, ctx) => {
+    const ids = new Set();
+    items.forEach((item, index) => {
+      if (ids.has(item.productId)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'productId'], message: 'A product may only appear once in the cart' });
+      }
+      ids.add(item.productId);
+    });
+  }),
   paymentOrder: z.object({ orderId: z.string().min(6).max(40) }),
   paymentVerify: z.object({
     orderId: z.string().min(6).max(40),

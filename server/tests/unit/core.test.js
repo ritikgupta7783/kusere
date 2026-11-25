@@ -9,6 +9,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('crypto');
 const http = require('http');
+const mongoose = require('mongoose');
 
 const { generateOtp, hashOtp, maskEmail, safeEqual } = require('../../utils/security');
 const { calculateTotals, toPaise } = require('../../utils/pricing');
@@ -17,6 +18,7 @@ const { schemas } = require('../../utils/validators');
 const { verifyPaymentSignature, verifyWebhookSignature } = require('../../services/razorpayService');
 const { isAllowedImage } = require('../../config/imageCatalog');
 const { generateOrderId } = require('../../services/orderService');
+const Cart = require('../../models/Cart');
 
 test('OTP is always six digits and hashing is deterministic, salted by email', () => {
   for (let i = 0; i < 500; i += 1) assert.match(generateOtp(), /^\d{6}$/);
@@ -63,6 +65,24 @@ test('registration validation: strong password, match, phone normalisation, no r
   assert.throws(() => schemas.register.parse({ ...base, phone: '12345' }));
 });
 
+test('cart validation allows empty carts but rejects duplicate products and invalid quantities', () => {
+  const productId = '507f1f77bcf86cd799439011';
+  assert.deepEqual(schemas.cart.parse({ items: [] }), { items: [] });
+  assert.throws(() => schemas.cart.parse({ items: [
+    { productId, quantity: 1 },
+    { productId, quantity: 2 },
+  ] }));
+  assert.throws(() => schemas.cart.parse({ items: [{ productId, quantity: 21 }] }));
+});
+
+test('cart schema stores product references with bounded quantities', () => {
+  const cart = new Cart({
+    user: new mongoose.Types.ObjectId(),
+    items: [{ product: new mongoose.Types.ObjectId(), quantity: 21 }],
+  });
+  assert.ok(cart.validateSync().errors['items.0.quantity']);
+});
+
 test('razorpay checkout signature verification', () => {
   const sig = crypto.createHmac('sha256', 'unit_secret').update('order_1|pay_1').digest('hex');
   assert.equal(verifyPaymentSignature({ orderId: 'order_1', paymentId: 'pay_1', signature: sig }), true);
@@ -77,8 +97,9 @@ test('razorpay webhook signature verification uses the raw body', () => {
   assert.equal(verifyWebhookSignature(Buffer.from('{"event":"payment.captured" }'), sig), false);
 });
 
-test('only catalogue images are allowed; external URLs are rejected', () => {
+test('catalogue and Cloudinary images are allowed; unrelated external URLs are rejected', () => {
   assert.equal(isAllowedImage('/assets/cavi-care-front.jpg'), true);
+  assert.equal(isAllowedImage('https://res.cloudinary.com/demo/image/upload/v1/products/cavi.jpg'), true);
   assert.equal(isAllowedImage('https://evil.example/x.jpg'), false);
   assert.equal(isAllowedImage('/assets/../../etc/passwd'), false);
 });
@@ -119,7 +140,7 @@ test('csrf endpoint sets a readable cookie and the matching header passes the CS
 });
 
 test('protected routes require a session', async () => {
-  for (const p of ['/api/auth/me', '/api/orders/my-orders', '/api/admin/dashboard', '/api/account/addresses']) {
+  for (const p of ['/api/auth/me', '/api/orders/my-orders', '/api/admin/dashboard', '/api/account/addresses', '/api/cart']) {
     const res = await fetch(base + p);
     assert.equal(res.status, 401, p);
   }

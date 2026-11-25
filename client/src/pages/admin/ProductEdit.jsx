@@ -92,7 +92,7 @@ export default function ProductEdit() {
       </section>
 
       <section className="card space-y-4 p-6">
-        <h3 className="text-xl font-semibold">Images (choose from the local library)</h3>
+        <h3 className="text-xl font-semibold">Images</h3>
         <ImagePicker label="Main image" value={form.image} onChange={(v) => upd('image', v)} />
         <ImagePicker label="Gallery images" multiple value={form.gallery} onChange={(v) => upd('gallery', v)} />
         {fields.image && <p className="text-xs text-brand-red">{fields.image}</p>}

@@ -36,6 +36,11 @@ const config = {
     keySecret: process.env.RAZORPAY_KEY_SECRET,
     webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET,
   },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
 };
 
 config.smtpConfigured = Boolean(config.smtp.host && config.smtp.user && config.smtp.pass);

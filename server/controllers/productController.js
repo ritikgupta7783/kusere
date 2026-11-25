@@ -6,8 +6,8 @@ const isObjectId = (v) => /^[a-f\d]{24}$/i.test(v);
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 function assertImages(body) {
-  if (!isAllowedImage(body.image)) throw new ApiError(400, 'Choose an image from the available library', 'IMAGE_NOT_ALLOWED');
-  if (body.gallery?.some((g) => !isAllowedImage(g))) throw new ApiError(400, 'Gallery images must come from the image library', 'IMAGE_NOT_ALLOWED');
+  if (!isAllowedImage(body.image)) throw new ApiError(400, 'Choose an image from the library or upload it to Cloudinary', 'IMAGE_NOT_ALLOWED');
+  if (body.gallery?.some((g) => !isAllowedImage(g))) throw new ApiError(400, 'Gallery images must come from the library or Cloudinary', 'IMAGE_NOT_ALLOWED');
   if (body.price > body.mrp) throw new ApiError(400, 'Selling price cannot be higher than MRP', 'PRICE_INVALID');
 }
 

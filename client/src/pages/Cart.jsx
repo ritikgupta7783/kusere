@@ -7,10 +7,10 @@ import { useToast } from '../context/ToastContext';
 import { useSite } from '../context/SiteContext';
 import { imageUrl } from '../utils/images';
 import { deliveryFor, formatPrice } from '../utils/format';
-import { EmptyState, QuantitySelector } from '../components/ui';
+import { EmptyState, ErrorNote, QuantitySelector } from '../components/ui';
 
 export default function Cart() {
-  const { items, subtotal, setQuantity, remove, syncWithCatalogue, MAX_QTY } = useCart();
+  const { items, subtotal, setQuantity, remove, syncWithCatalogue, syncError, MAX_QTY } = useCart();
   const { settings } = useSite();
   const toast = useToast();
   const navigate = useNavigate();
@@ -23,13 +23,14 @@ export default function Cart() {
   }, []);
 
   if (!items.length) {
-    return <div className="container-page py-20"><EmptyState icon={ShoppingBag} title="Your cart is empty" text="Add Cavi-Care to get started." action={<Link to="/shop" className="btn-primary">Browse products</Link>} /></div>;
+    return <div className="container-page space-y-4 py-20"><ErrorNote>{syncError}</ErrorNote><EmptyState icon={ShoppingBag} title="Your cart is empty" text="Add Cavi-Care to get started." action={<Link to="/shop" className="btn-primary">Browse products</Link>} /></div>;
   }
   const delivery = deliveryFor(settings, subtotal);
 
   return (
     <div className="container-page py-10 sm:py-14">
       <h1 className="text-4xl font-semibold">Your cart</h1>
+      <ErrorNote>{syncError}</ErrorNote>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
         <ul className="space-y-4">
           {items.map((i) => (

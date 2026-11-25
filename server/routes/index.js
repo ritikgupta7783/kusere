@@ -10,6 +10,17 @@ const orders = require('../controllers/orderController');
 const payments = require('../controllers/paymentController');
 const site = require('../controllers/siteController');
 const admin = require('../controllers/adminController');
+const cart = require('../controllers/cartController');
+const multer = require('multer');
+const uploadController = require('../controllers/uploadController');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    cb(null, /^image\/(jpeg|png|webp|gif)$/.test(file.mimetype));
+  },
+});
 
 const router = express.Router();
 
@@ -33,6 +44,10 @@ router.get('/account/addresses', authenticate, account.listAddresses);
 router.post('/account/addresses', authenticate, validate(schemas.address), account.createAddress);
 router.put('/account/addresses/:id', authenticate, validate(schemas.address), account.updateAddress);
 router.delete('/account/addresses/:id', authenticate, account.deleteAddress);
+
+// ---- Customer cart ----
+router.get('/cart', authenticate, cart.getCart);
+router.put('/cart', authenticate, validate(schemas.cart), cart.saveCart);
 
 // ---- Products ----
 router.get('/products', optionalAuth, products.list);
@@ -59,6 +74,7 @@ const adminRouter = express.Router();
 adminRouter.use(authenticate, requireAdmin);
 adminRouter.get('/dashboard', admin.dashboard);
 adminRouter.get('/images', products.imageLibrary);
+adminRouter.post('/uploads/image', upload.single('image'), uploadController.uploadImage);
 adminRouter.get('/orders', admin.listOrders);
 adminRouter.get('/orders/:id', admin.getOrder);
 adminRouter.patch('/orders/:id/status', validate(schemas.orderStatus), admin.updateOrderStatus);

@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema(
     benefits: [{ type: String, trim: true }],
     usage: [{ type: String, trim: true }],
     specifications: [{ _id: false, label: { type: String, trim: true }, value: { type: String, trim: true } }],
-    // Local static path today ("/assets/..."). Can hold a Cloudinary URL in phase 2.
+    // Bundled local path or Cloudinary HTTPS URL.
     image: { type: String, required: true },
     gallery: [{ type: String }],
     inStock: { type: Boolean, default: true },

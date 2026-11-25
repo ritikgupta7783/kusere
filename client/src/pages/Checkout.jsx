@@ -13,7 +13,7 @@ import { Button, EmptyState, ErrorNote, Field } from '../components/ui';
 
 export default function Checkout() {
   const { user } = useAuth();
-  const { items, subtotal, clear, syncWithCatalogue } = useCart();
+  const { items, subtotal, clear, syncWithCatalogue, syncError } = useCart();
   const { settings } = useSite();
   const toast = useToast();
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function Checkout() {
   const fillFrom = (a) => setForm((f) => ({ ...f, fullName: a.fullName, phone: a.phone, addressLine: a.addressLine, pincode: a.pincode, district: a.district, state: a.state }));
   const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setErrors((x) => ({ ...x, [k]: undefined })); };
 
-  if (!items.length) return <div className="container-page py-20"><EmptyState icon={ShoppingBag} title="Your cart is empty" action={<Link to="/shop" className="btn-primary">Browse products</Link>} /></div>;
+  if (!items.length) return <div className="container-page space-y-4 py-20"><ErrorNote>{syncError}</ErrorNote><EmptyState icon={ShoppingBag} title="Your cart is empty" action={<Link to="/shop" className="btn-primary">Browse products</Link>} /></div>;
 
   const delivery = deliveryFor(settings, subtotal);
   const total = subtotal + delivery;
@@ -91,6 +91,7 @@ export default function Checkout() {
   return (
     <div className="container-page py-10 sm:py-14">
       <h1 className="text-4xl font-semibold">Checkout</h1>
+      <ErrorNote>{syncError}</ErrorNote>
       <form onSubmit={place} noValidate className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
           <section className="card space-y-4 p-6">
